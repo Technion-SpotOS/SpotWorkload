@@ -1,0 +1,28 @@
+apiVersion: golem.spot-os.io/v1alpha1
+kind: SpotWorkload
+metadata:
+  name: sleepers
+  namespace: golem
+spec:
+  app: sleepers
+  share: false
+  components:
+    sleeper1:
+      vCPUs: 2
+      memory: 4
+      network: 1
+      behavior: terminate
+      frequency: 0
+      storageType: ssd
+      affinity: sleeper2
+      anti-affinity: []
+    sleeper2:
+      vCPUs: 1
+      memory: 2
+      network: 1
+      behavior: stop
+      frequency: 1
+      storageType: hdd
+      affinity: sleeper1
+      anti-affinity: []
+

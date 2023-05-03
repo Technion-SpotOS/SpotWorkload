@@ -6,14 +6,12 @@ This repository contains the API for SpotWorkload CRD and the set of its managin
 ## Getting Started
 
 ### SpotWorkload CR
-A SpotWorkload CR defines a spot instance configuration as outputted from the [CloudCostOptimizer](https://github.com/AdiY10/CloudCostOptimizer), and reflects its utilization in status when the spot-instance begins serving as a cluster node.
+A SpotWorkload CR defines a workload configuration as expected to input in [CloudCostOptimizer](https://github.com/AdiY10/CloudCostOptimizer),
+and reflects the workload's scheduling decisions and status as it progresses.
 
-### SpotIstance Controllers
+### SpotWorkload Controllers
 The controllers are responsible for:
-- Ordering the specified spot instance
-- Installing the acquired spot instance as a cluster node
-    - Including tainting and labeling properly
-- Updating CR status with assigned node name
+- Translating the workload's scheduling decisions into tolerations and node affinity rules
 
 TODO: enhance docs, add examples
 
@@ -48,14 +46,14 @@ TODO: enhance docs, add examples
     $ export IMAGE=$REGISTRY/$(basename $(pwd)):latest
     ```
 
-1.  Run the following command to deploy the `spot-instance-controller` controller to your cluster:
+1.  Run the following command to deploy the `spot-workload-controller` controller to your cluster:
     ```
-    envsubst < deploy/spot-instance-controller.yaml.template | kubectl apply -f -
+    envsubst < deploy/spot-workload-controller.yaml.template | kubectl apply -f -
     ```
 
 ## Cleanup from a cluster
 
-1.  Run the following command to clean `spot-instance-controller` from your leaf hub cluster:
+1.  Run the following command to clean `spot-workload-controller` from your cluster:
     ```
-    envsubst < deploy/spot-instance-controller.yaml.template | kubectl delete -f -
+    envsubst < deploy/spot-workload-controller.yaml.template | kubectl delete -f -
     ```

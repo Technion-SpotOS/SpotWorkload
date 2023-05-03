@@ -23,55 +23,57 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// Component defines the desired state of a component in a workload.
-type Component struct {
-	// The amount of memory (in GB) allocated to the component.
-	Memory int `json:"memory"`
-	// The number of virtual CPUs allocated to the component.
+// ComponentSpec defines the requirements of a component in a workload.
+type ComponentSpec struct {
+	// VCPUs is the required number of virtual CPUs for component.
 	VCPUs int `json:"vCPUs"`
-	// The amount of network bandwidth (in Gbps) allocated to the component.
+	// Memory is the required memory for component (GB).
+	Memory int `json:"memory"`
+	// Network is the required network bandwidth for component (Gbps).
 	Network int `json:"network"`
-	// The behavior to perform when the component terminates.
-	Behavior string `json:"behavior"`
-	// The frequency (in minutes) at which to perform the behavior.
-	Frequency string `json:"frequency"`
+	// Behavior is the required interruption behavior: options: terminate,stop,hibernation
+	Behavior string `json:"behavior" enum:"terminate|stop|hibernation" default:"terminate"`
+	// Frequency is the limit interruption frequency of the instances. options: 0-4.
+	Frequency int `json:"frequency" enum:"0|1|2|3|4" default:"0"`
 	// The type of storage to use for the component (optional).
 	StorageType string `json:"storageType,omitempty"`
-	// The name of the component to which this component is affinity with (optional).
-	Affinity string `json:"affinity,omitempty"`
-	// The name of the component.
-	Name string `json:"name"`
-	// Whether the component is allowed to burst above its resource allocation (optional).
-	Burstable bool `json:"burstable,omitempty"`
-	// The name of the component to which this component is anti-affinity with (optional).
-	AntiAffinity string `json:"anti-affinity,omitempty"`
+	// Affinity is the components names that must be on the same instance.
+	Affinity []string `json:"affinity,omitempty"`
+	// AntiAffinity is the components names that must be on different instances.
+	AntiAffinity []string `json:"anti-affinity,omitempty"`
 }
 
-// SpotWorkloadSpec defines the desired state of SpotWorkload
+// ComponentStatus defines the observed state of a component in a workload.
+type ComponentStatus struct {
+	// Stage is the stage of the lifecycle of the workload
+	Stage string `json:"stage,omitempty" enum:"pending|scheduled|deployed|evacuated"`
+	// InstanceName is the name of the node the instance is scheduled to
+	InstanceName string `json:"instance-name,omitempty"`
+}
+
+// SpotWorkloadSpec defines the desired state of SpotWorkload.
 type SpotWorkloadSpec struct {
 	// The name of the application.
 	App string `json:"app"`
 	// Whether the workload components share resources.
 	Share bool `json:"share"`
-	// The list of components in the workload.
-	Components []Component `json:"components"`
+	// The list of components in the workload. Component names (keys) must match relevant deployment names.
+	Components map[string]ComponentSpec `json:"components"`
 }
 
-// SpotWorkloadStatus defines the observed state of SpotWorkload
+// SpotWorkloadStatus defines the observed state of SpotWorkload.
 type SpotWorkloadStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Stage is the stage of the lifecycle of the workload
-	Stage string `json:"stage,omitempty" enum:"Pending|Scheduled|Deployed|Evacuating"`
-	// SchedulingTarget is the name of the node the instance is scheduled to
-	SchedulingTarget string `json:"scheduling-target,omitempty"`
+	// Components is the status of the components in the workload.
+	Components map[string]ComponentStatus `json:"components"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// SpotWorkload is the Schema for the spotworkloads API
+// SpotWorkload is the Schema for the spotworkloads API.
 type SpotWorkload struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -82,7 +84,7 @@ type SpotWorkload struct {
 
 //+kubebuilder:object:root=true
 
-// SpotWorkloadList contains a list of SpotWorkload
+// SpotWorkloadList contains a list of SpotWorkload.
 type SpotWorkloadList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`

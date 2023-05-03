@@ -18,7 +18,7 @@ spec:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: SpotWorkload is the Schema for the spotworkloads API
+        description: SpotWorkload is the Schema for the spotworkloads API.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -33,61 +33,60 @@ spec:
           metadata:
             type: object
           spec:
-            description: SpotWorkloadSpec defines the desired state of SpotWorkload
+            description: SpotWorkloadSpec defines the desired state of SpotWorkload.
             properties:
               app:
                 description: The name of the application.
                 type: string
               components:
-                description: The list of components in the workload.
-                items:
-                  description: Component defines the desired state of a component
+                additionalProperties:
+                  description: ComponentSpec defines the requirements of a component
                     in a workload.
                   properties:
                     affinity:
-                      description: The name of the component to which this component
-                        is affinity with (optional).
-                      type: string
+                      description: Affinity is the components names that must be on
+                        the same instance.
+                      items:
+                        type: string
+                      type: array
                     anti-affinity:
-                      description: The name of the component to which this component
-                        is anti-affinity with (optional).
-                      type: string
+                      description: AntiAffinity is the components names that must
+                        be on different instances.
+                      items:
+                        type: string
+                      type: array
                     behavior:
-                      description: The behavior to perform when the component terminates.
+                      description: 'Behavior is the required interruption behavior:
+                        options: terminate,stop,hibernation'
                       type: string
-                    burstable:
-                      description: Whether the component is allowed to burst above
-                        its resource allocation (optional).
-                      type: boolean
                     frequency:
-                      description: The frequency (in minutes) at which to perform
-                        the behavior.
-                      type: string
-                    memory:
-                      description: The amount of memory (in GB) allocated to the component.
+                      description: 'Frequency is the limit interruption frequency
+                        of the instances. options: 0-4.'
                       type: integer
-                    name:
-                      description: The name of the component.
-                      type: string
+                    memory:
+                      description: Memory is the required memory for component (GB).
+                      type: integer
                     network:
-                      description: The amount of network bandwidth (in Gbps) allocated
-                        to the component.
+                      description: Network is the required network bandwidth for component
+                        (Gbps).
                       type: integer
                     storageType:
                       description: The type of storage to use for the component (optional).
                       type: string
                     vCPUs:
-                      description: The number of virtual CPUs allocated to the component.
+                      description: VCPUs is the required number of virtual CPUs for
+                        component.
                       type: integer
                   required:
                   - behavior
                   - frequency
                   - memory
-                  - name
                   - network
                   - vCPUs
                   type: object
-                type: array
+                description: The list of components in the workload. Component names
+                  (keys) must match relevant deployment names.
+                type: object
               share:
                 description: Whether the workload components share resources.
                 type: boolean
@@ -97,15 +96,25 @@ spec:
             - share
             type: object
           status:
-            description: SpotWorkloadStatus defines the observed state of SpotWorkload
+            description: SpotWorkloadStatus defines the observed state of SpotWorkload.
             properties:
-              scheduling-target:
-                description: SchedulingTarget is the name of the node the instance
-                  is scheduled to
-                type: string
-              stage:
-                description: Stage is the stage of the lifecycle of the workload
-                type: string
+              components:
+                additionalProperties:
+                  description: ComponentStatus defines the observed state of a component
+                    in a workload.
+                  properties:
+                    instance-name:
+                      description: InstanceName is the name of the node the instance
+                        is scheduled to
+                      type: string
+                    stage:
+                      description: Stage is the stage of the lifecycle of the workload
+                      type: string
+                  type: object
+                description: Components is the status of the components in the workload.
+                type: object
+            required:
+            - components
             type: object
         type: object
     served: true

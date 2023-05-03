@@ -1,27 +1,27 @@
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: spot-instance-controller
+  name: spot-workload-controller
 subjects:
 - kind: ServiceAccount
-  name: spot-instance-controller
+  name: spot-workload-controller
   namespace: golem
 roleRef:
   kind: ClusterRole
-  name: spot-instance-controller
+  name: spot-workload-controller
   apiGroup: rbac.authorization.k8s.io
 ---
 
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: spot-instance-controller
+  name: spot-workload-controller
 rules:
 - apiGroups:
   - golem.spot-os.io
   resources:
-  - SpotInstance
-  - nodes
+  - spotworkloads
+  - spotworkloads/status
   verbs:
   - get
   - list
@@ -32,11 +32,21 @@ rules:
   resources:
   - pods
   - namespaces
-  - configmaps
+  - deployments
   - events
   verbs:
-  - create
-  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - extensions
+  - apps
+  resources:
+  - deployments
+  - replicasets
+  verbs:
   - get
   - list
   - patch
@@ -56,28 +66,28 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: spot-instance-controller
+  name: spot-workload-controller
   namespace: golem
 ---
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spot-instance-controller
+  name: spot-workload-controller
   namespace: golem
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: spot-instance-controller
+      name: spot-workload-controller
   template:
     metadata:
       labels:
-        name: spot-instance-controller
+        name: spot-workload-controller
     spec:
-      serviceAccountName: spot-instance-controller
+      serviceAccountName: spot-workload-controller
       containers:
-        - name: spot-instance-controller
+        - name: spot-workload-controller
           image: $IMAGE
           args:
             - '--zap-devel=true'
