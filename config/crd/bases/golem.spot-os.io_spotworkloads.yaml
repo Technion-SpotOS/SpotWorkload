@@ -1,0 +1,114 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: spotworkloads.golem.spot-os.io
+spec:
+  group: golem.spot-os.io
+  names:
+    kind: SpotWorkload
+    listKind: SpotWorkloadList
+    plural: spotworkloads
+    singular: spotworkload
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: SpotWorkload is the Schema for the spotworkloads API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: SpotWorkloadSpec defines the desired state of SpotWorkload
+            properties:
+              app:
+                description: The name of the application.
+                type: string
+              components:
+                description: The list of components in the workload.
+                items:
+                  description: Component defines the desired state of a component
+                    in a workload.
+                  properties:
+                    affinity:
+                      description: The name of the component to which this component
+                        is affinity with (optional).
+                      type: string
+                    anti-affinity:
+                      description: The name of the component to which this component
+                        is anti-affinity with (optional).
+                      type: string
+                    behavior:
+                      description: The behavior to perform when the component terminates.
+                      type: string
+                    burstable:
+                      description: Whether the component is allowed to burst above
+                        its resource allocation (optional).
+                      type: boolean
+                    frequency:
+                      description: The frequency (in minutes) at which to perform
+                        the behavior.
+                      type: string
+                    memory:
+                      description: The amount of memory (in GB) allocated to the component.
+                      type: integer
+                    name:
+                      description: The name of the component.
+                      type: string
+                    network:
+                      description: The amount of network bandwidth (in Gbps) allocated
+                        to the component.
+                      type: integer
+                    storageType:
+                      description: The type of storage to use for the component (optional).
+                      type: string
+                    vCPUs:
+                      description: The number of virtual CPUs allocated to the component.
+                      type: integer
+                  required:
+                  - behavior
+                  - frequency
+                  - memory
+                  - name
+                  - network
+                  - vCPUs
+                  type: object
+                type: array
+              share:
+                description: Whether the workload components share resources.
+                type: boolean
+            required:
+            - app
+            - components
+            - share
+            type: object
+          status:
+            description: SpotWorkloadStatus defines the observed state of SpotWorkload
+            properties:
+              scheduling-target:
+                description: SchedulingTarget is the name of the node the instance
+                  is scheduled to
+                type: string
+              stage:
+                description: Stage is the stage of the lifecycle of the workload
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
