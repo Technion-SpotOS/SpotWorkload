@@ -57,7 +57,7 @@ func (r *SpotWorkloadReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		}
 
 		componentStatuses[name] = v1alpha1.ComponentStatus{
-			Stage:        "scheduled",
+			Stage:        "deployed",
 			InstanceName: spotWorkload.Status.Components[name].InstanceName,
 		}
 	}
